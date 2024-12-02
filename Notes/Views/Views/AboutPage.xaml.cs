@@ -4,9 +4,8 @@ public partial class AboutPage : ContentPage
 {
 	public AboutPage()
 	{
-        InitializeComponent();
+		InitializeComponent();
 	}
-
 
     private async void LearnMore_Clicked(object sender, EventArgs e)
     {
@@ -16,5 +15,4 @@ public partial class AboutPage : ContentPage
             await Launcher.Default.OpenAsync(about.MoreInfoUrl);
         }
     }
-
 }
