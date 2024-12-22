@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Notes.ViewModels
 {
-    internal class AboutViewModel
+    internal class EGNotesViewModel
     {
     }
 }
