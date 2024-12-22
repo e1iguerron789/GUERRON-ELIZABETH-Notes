@@ -1,54 +1,52 @@
-﻿namespace Notes.Models;
-
-internal class EGNote
+﻿namespace Notes.Models
 {
-    public string Filename { get; set; }
-    public string Text { get; set; }
-    public DateTime Date { get; set; }
-    public EGNote()
+    internal class EGNote
     {
-        Filename = $"{Path.GetRandomFileName()}.notes.txt";
-        Date = DateTime.Now;
-        Text = "";
-    }
+        // Usamos Filename como un identificador único
+        public string Id => Filename;  // Filename puede actuar como el ID
 
-    public void Save() =>
-File.WriteAllText(System.IO.Path.Combine(FileSystem.AppDataDirectory, Filename), Text);
+        public string Filename { get; set; }
+        public string Text { get; set; }
+        public DateTime Date { get; set; }
 
-    public void Delete() =>
-        File.Delete(System.IO.Path.Combine(FileSystem.AppDataDirectory, Filename));
-    public static EGNote Load(string filename)
-    {
-        filename = System.IO.Path.Combine(FileSystem.AppDataDirectory, filename);
+        public EGNote()
+        {
+            Filename = $"{Path.GetRandomFileName()}.notes.txt";
+            Date = DateTime.Now;
+            Text = "";
+        }
 
-        if (!File.Exists(filename))
-            throw new FileNotFoundException("Unable to find file on local storage.", filename);
+        public void Save() =>
+            File.WriteAllText(System.IO.Path.Combine(FileSystem.AppDataDirectory, Filename), Text);
 
-        return
-            new()
+        public void Delete() =>
+            File.Delete(System.IO.Path.Combine(FileSystem.AppDataDirectory, Filename));
+
+        public static EGNote Load(string filename)
+        {
+            filename = System.IO.Path.Combine(FileSystem.AppDataDirectory, filename);
+
+            if (!File.Exists(filename))
+                throw new FileNotFoundException("Unable to find file on local storage.", filename);
+
+            return new()
             {
                 Filename = Path.GetFileName(filename),
                 Text = File.ReadAllText(filename),
                 Date = File.GetLastWriteTime(filename)
             };
-    }
+        }
 
-    public static IEnumerable<EGNote> LoadAll()
-    {
-        // Get the folder where the notes are stored.
-        string appDataPath = FileSystem.AppDataDirectory;
+        public static IEnumerable<EGNote> LoadAll()
+        {
+            // Get the folder where the notes are stored.
+            string appDataPath = FileSystem.AppDataDirectory;
 
-        // Use Linq extensions to load the *.notes.txt files.
-        return Directory
-
-                // Select the file names from the directory
+            // Use Linq extensions to load the *.notes.txt files.
+            return Directory
                 .EnumerateFiles(appDataPath, "*.notes.txt")
-
-                // Each file name is used to load a note
                 .Select(filename => EGNote.Load(Path.GetFileName(filename)))
-
-                // With the final collection of notes, order them by date
                 .OrderByDescending(note => note.Date);
+        }
     }
-
 }
