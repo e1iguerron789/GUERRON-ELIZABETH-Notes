@@ -1,32 +1,85 @@
-﻿using Notes.Models;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Notes.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
-namespace Notes.ViewModels
+namespace Notes.ViewModels;
+internal class EGNoteViewModel : ObservableObject, IQueryAttributable
 {
-    internal class EGNoteViewModel
+    private Models.EGNote _note;
+
+    public string Text
     {
-        // Propiedad para identificar la nota
-        public string Identifier { get; private set; }
-
-        // Constructor que recibe una instancia de EGNote
-        public EGNoteViewModel(EGNote note)
+        get => _note.Text;
+        set
         {
-            if (note == null)
-                throw new ArgumentNullException(nameof(note));
-
-            // Inicializa la propiedad Identifier u otras propiedades necesarias
-            Identifier = note.Id; // Ajusta según la clase `EGNote`
-        }
-
-        // Método para recargar los datos de la nota
-        public void Reload()
-        {
-            // Aquí puedes agregar la lógica para recargar la nota si es necesario
-            // Por ejemplo, volver a cargar los datos desde el modelo EGNote
+            if (_note.Text != value)
+            {
+                _note.Text = value;
+                OnPropertyChanged();
+            }
         }
     }
+
+    public DateTime Date => _note.Date;
+
+    public string Identifier => _note.Filename;
+
+    public ICommand SaveCommand { get; private set; }
+    public ICommand DeleteCommand { get; private set; }
+
+    public EGNoteViewModel()
+    {
+        _note = new Models.EGNote();
+        SaveCommand = new AsyncRelayCommand(Save);
+        DeleteCommand = new AsyncRelayCommand(Delete);
+    }
+
+    public EGNoteViewModel(Models.EGNote note)
+    {
+        _note = note;
+        SaveCommand = new AsyncRelayCommand(Save);
+        DeleteCommand = new AsyncRelayCommand(Delete);
+    }
+
+    private async Task Save()
+    {
+        _note.Date = DateTime.Now;
+        _note.Save();
+        await Shell.Current.GoToAsync($"..?saved={_note.Filename}");
+    }
+
+    private async Task Delete()
+    {
+        _note.Delete();
+        await Shell.Current.GoToAsync($"..?deleted={_note.Filename}");
+    }
+
+    void IQueryAttributable.ApplyQueryAttributes(IDictionary<string, object> query)
+    {
+        if (query.ContainsKey("load"))
+        {
+            _note = Models.EGNote.Load(query["load"].ToString());
+            RefreshProperties();
+        }
+    }
+
+    public void Reload()
+    {
+        _note = Models.EGNote.Load(_note.Filename);
+        RefreshProperties();
+    }
+
+    private void RefreshProperties()
+    {
+        OnPropertyChanged(nameof(Text));
+        OnPropertyChanged(nameof(Date));
+    }
 }
+
+

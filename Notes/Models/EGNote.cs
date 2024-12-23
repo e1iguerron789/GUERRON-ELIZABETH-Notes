@@ -1,9 +1,8 @@
-﻿namespace Notes.Models
-{
+﻿namespace Notes.Models;
+
     internal class EGNote
     {
-        // Usamos Filename como un identificador único
-        public string Id => Filename;  // Filename puede actuar como el ID
+      
 
         public string Filename { get; set; }
         public string Text { get; set; }
@@ -49,4 +48,4 @@
                 .OrderByDescending(note => note.Date);
         }
     }
-}
+

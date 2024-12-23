@@ -1,13 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace Notes.ViewModels
-{
+namespace Notes.ViewModels;
+
     internal class EGAboutViewModel
     {
         public string Title => AppInfo.Name;
@@ -24,4 +19,4 @@ namespace Notes.ViewModels
         async Task ShowMoreInfo() =>
             await Launcher.Default.OpenAsync(MoreInfoUrl);
     }
-}
+

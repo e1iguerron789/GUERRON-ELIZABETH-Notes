@@ -24,10 +24,7 @@ internal class EGNotesViewModel : IQueryAttributable
         {
             await Shell.Current.GoToAsync(nameof(Views.NotePage));
         }
-        else
-        {
-            // Manejar el caso donde Shell.Current es null
-        }
+       
     }
 
     private async Task SelectNoteAsync(EGNoteViewModel note)
@@ -36,19 +33,17 @@ internal class EGNotesViewModel : IQueryAttributable
         {
             await Shell.Current.GoToAsync($"{nameof(Views.NotePage)}?load={note.Identifier}");
         }
-        else
-        {
-            // Manejar el caso donde note es null o Shell.Current es null
-        }
+       
     }
 
-    public void ApplyQueryAttributes(IDictionary<string, object> query)
+    void IQueryAttributable.ApplyQueryAttributes(IDictionary<string, object> query)
     {
         if (query.ContainsKey("deleted"))
         {
             string noteId = query["deleted"].ToString();
             EGNoteViewModel matchedNote = AllNotes.Where((n) => n.Identifier == noteId).FirstOrDefault();
 
+            // If note exists, delete it
             if (matchedNote != null)
                 AllNotes.Remove(matchedNote);
         }
@@ -57,15 +52,15 @@ internal class EGNotesViewModel : IQueryAttributable
             string noteId = query["saved"].ToString();
             EGNoteViewModel matchedNote = AllNotes.Where((n) => n.Identifier == noteId).FirstOrDefault();
 
+            // If note is found, update it
             if (matchedNote != null)
             {
                 matchedNote.Reload();
                 AllNotes.Move(AllNotes.IndexOf(matchedNote), 0);
             }
+            // If note isn't found, it's new; add it.
             else
-            {
-                AllNotes.Insert(0, new EGNoteViewModel(EGNote.Load(noteId)));
-            }
+                AllNotes.Insert(0, new EGNoteViewModel(Models.EGNote.Load(noteId)));
         }
     }
 }
